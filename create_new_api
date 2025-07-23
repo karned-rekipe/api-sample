@@ -25,7 +25,7 @@ find . -type f -not -path "*/\.*" -not -path "*/venv/*" -not -path "*/_temp/*" -
   if [[ -f "$file" && "$(file -b --mime-type "$file" | grep -c "text/")" -eq 1 ]]; then
     echo "Modifying content in: $file"
     # Replace all variations of "sample" with appropriate case
-    sed -i.bak "s/samples/${replacement_word}s/g; s/Samples/${capitalized_word}s/g; s/sample/$replacement_word/g; s/Sample/$capitalized_word/g" "$file"
+    sed -i.bak "s/samples/$(echo "${replacement_word}s" | sed 's/[\/&]/\\&/g')/g; s/Samples/$(echo "${capitalized_word}s" | sed 's/[\/&]/\\&/g')/g; s/sample/$(echo "${replacement_word}" | sed 's/[\/&]/\\&/g')/g; s/Sample/$(echo "${capitalized_word}" | sed 's/[\/&]/\\&/g')/g" "$file"
     rm -f "$file.bak"
   fi
 done
@@ -33,7 +33,7 @@ done
 # 2. Rename files and directories (starting from deepest level)
 echo "Renaming files and directories..."
 find . -depth \( -name "*sample*" -o -name "*Sample*" -o -name "*samples*" -o -name "*Samples*" \) -not -path "*/\.*" -not -path "*/venv/*" -not -path "*/_temp/*" | while read item; do
-  new_name=$(echo "$item" | sed "s/samples/${replacement_word}s/g; s/Samples/${replacement_word^}s/g; s/sample/$replacement_word/g; s/Sample/${replacement_word^}/g")
+  new_name=$(echo "$item" | sed "s/samples/$(echo "${replacement_word}s" | sed 's/[\/&]/\\&/g')/g; s/Samples/$(echo "${replacement_word^}s" | sed 's/[\/&]/\\&/g')/g; s/sample/$(echo "${replacement_word}" | sed 's/[\/&]/\\&/g')/g; s/Sample/$(echo "${replacement_word^}" | sed 's/[\/&]/\\&/g')/g")
   if [ "$item" != "$new_name" ]; then
     echo "Renaming: $item -> $new_name"
     mv "$item" "$new_name"
