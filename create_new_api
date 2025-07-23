@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Script to replace all occurrences of "sample", "Sample", "samples", and "Samples"
+# with appropriate forms of a user-provided word
+# in both file contents and file/directory names
+
+# Prompt user for the replacement word
+echo "Enter the word to replace 'sample' and its variations (e.g., product): "
+read replacement_word
+
+if [ -z "$replacement_word" ]; then
+  echo "Error: No replacement word provided. Exiting."
+  exit 1
+fi
+
+# Create capitalized version of the replacement word
+capitalized_word="$(echo ${replacement_word:0:1} | tr '[:lower:]' '[:upper:]')${replacement_word:1}"
+
+echo "Replacing 'sample' and its variations with '$replacement_word' and appropriate forms throughout the project..."
+
+# 1. Replace in file contents (case-sensitive replacements)
+echo "Replacing in file contents..."
+find . -type f -not -path "*/\.*" -not -path "*/venv/*" -not -path "*/_temp/*" -not -path "./create_new_api" | while read file; do
+  # Skip binary files and the script itself
+  if [[ -f "$file" && "$(file -b --mime-type "$file" | grep -c "text/")" -eq 1 ]]; then
+    echo "Modifying content in: $file"
+    # Replace all variations of "sample" with appropriate case
+    sed -i.bak "s/samples/${replacement_word}s/g; s/Samples/${capitalized_word}s/g; s/sample/$replacement_word/g; s/Sample/$capitalized_word/g" "$file"
+    rm -f "$file.bak"
+  fi
+done
+
+# 2. Rename files and directories (starting from deepest level)
+echo "Renaming files and directories..."
+find . -depth \( -name "*sample*" -o -name "*Sample*" -o -name "*samples*" -o -name "*Samples*" \) -not -path "*/\.*" -not -path "*/venv/*" -not -path "*/_temp/*" | while read item; do
+  new_name=$(echo "$item" | sed "s/samples/${replacement_word}s/g; s/Samples/${replacement_word^}s/g; s/sample/$replacement_word/g; s/Sample/${replacement_word^}/g")
+  if [ "$item" != "$new_name" ]; then
+    echo "Renaming: $item -> $new_name"
+    mv "$item" "$new_name"
+  fi
+done
+
+echo "Transformation complete. Please verify that everything works correctly."
