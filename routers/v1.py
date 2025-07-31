@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Request
 from config.config import API_TAG_NAME
 from common_api.decorators.v0.check_permission import check_permissions
-from models.sample_model import SampleWrite, SampleRead
+from models.sample_model import SampleCreate, SampleRead, SampleUpdate
 from common_api.services.v0 import Logger
 from services.samples_service import create_sample, get_samples, get_sample, update_sample, delete_sample
 
@@ -18,7 +18,7 @@ router = APIRouter(
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 @check_permissions(['create'])
-async def create_new_sample(request: Request, sample: SampleWrite) -> dict:
+async def create_new_sample(request: Request, sample: SampleCreate) -> dict:
     logger.api("POST /sample/v1/")
     sample.created_by = request.state.token_info.get('user_uuid')
     new_uuid = create_sample(request, sample)
@@ -44,7 +44,7 @@ async def read_sample(request: Request, uuid: str):
 
 @router.put("/{uuid}", status_code=status.HTTP_204_NO_CONTENT)
 @check_permissions(['update', 'update_own'])
-async def update_existing_sample(request: Request, uuid: str, sample_update: SampleWrite):
+async def update_existing_sample(request: Request, uuid: str, sample_update: SampleUpdate):
     logger.api("PUT /sample/v1/{uuid}")
     update_sample(request, uuid, sample_update)
 

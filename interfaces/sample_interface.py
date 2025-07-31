@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import List
-from models.sample_model import SampleWrite
+from models.sample_model import SampleCreate, SampleUpdate
+
 
 class SampleRepository(ABC):
 
     @abstractmethod
-    def create_sample(self, sample_create: SampleWrite):
+    def create_sample(self, sample_create: SampleCreate):
         pass
 
     @abstractmethod
@@ -17,7 +17,7 @@ class SampleRepository(ABC):
         pass
 
     @abstractmethod
-    def update_sample(self, sample_id: str, sample_update: SampleWrite):
+    def update_sample(self, sample_id: str, sample_update: SampleUpdate):
         pass
 
     @abstractmethod

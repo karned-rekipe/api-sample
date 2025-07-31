@@ -6,7 +6,7 @@ from uuid import uuid4
 from pymongo import MongoClient
 
 from interfaces.sample_interface import SampleRepository
-from models.sample_model import SampleWrite
+from models.sample_model import SampleCreateDatabase, SampleUpdate
 from schemas.sample_schema import list_sample_serial, sample_serial
 
 def check_uri(uri):
@@ -38,7 +38,7 @@ class SampleRepositoryMongo(SampleRepository):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.client.close()
 
-    def create_sample(self, sample_create: SampleWrite) -> str:
+    def create_sample(self, sample_create: SampleCreateDatabase) -> str:
         sample_data = sample_create.model_dump()
         sample_id = str(uuid4())
         sample_data["_id"] = sample_id
@@ -60,7 +60,7 @@ class SampleRepositoryMongo(SampleRepository):
         samples = list_sample_serial(result)
         return samples
 
-    def update_sample(self, uuid: str, sample_update: SampleWrite) -> None:
+    def update_sample(self, uuid: str, sample_update: SampleUpdate) -> None:
         update_fields = sample_update.model_dump()
         update_fields.pop('created_by', None)
         update_data = {"$set": update_fields}
