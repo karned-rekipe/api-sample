@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from models.sample_model import SampleCreate, SampleUpdate
+from models.sample_model import SampleRead, SampleUpdate
 from common_api.utils.v0 import get_state_repos
 
 
@@ -14,7 +14,7 @@ def create_sample(request, new_sample) -> str:
 
     return new_uuid
 
-def get_samples(request) -> list[SampleCreate]:
+def get_samples(request) -> list[SampleRead]:
     try:
         repos = get_state_repos(request)
         samples = repos.sample_repo.list_samples()
@@ -26,7 +26,7 @@ def get_samples(request) -> list[SampleCreate]:
     return samples
 
 
-def get_sample(request, uuid: str) -> SampleCreate:
+def get_sample(request, uuid: str) -> SampleRead:
     try:
         repos = get_state_repos(request)
         sample = repos.sample_repo.get_sample(uuid)
