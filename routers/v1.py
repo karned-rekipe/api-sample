@@ -20,7 +20,6 @@ router = APIRouter(
 @check_permissions(['create'])
 async def create_new_sample(request: Request, sample: SampleCreate) -> dict:
     logger.api("POST /sample/v1/")
-    sample.created_by = request.state.token_info.get('user_uuid')
     new_uuid = create_sample(request, sample)
     return {"uuid": new_uuid}
 
@@ -33,7 +32,7 @@ async def read_samples(request: Request):
 
 
 @router.get("/{uuid}", status_code=status.HTTP_200_OK, response_model=SampleRead)
-@check_permissions(['list', 'list_own'])
+@check_permissions(['read', 'read_own'])
 async def read_sample(request: Request, uuid: str):
     logger.api("GET /sample/v1/{uuid}")
     sample = get_sample(request, uuid)

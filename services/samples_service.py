@@ -1,12 +1,16 @@
 from fastapi import HTTPException
-from models.sample_model import SampleRead, SampleUpdate
+from models.sample_model import SampleRead, SampleUpdate, SampleCreate, SampleCreateDatabase
 from common_api.utils.v0 import get_state_repos
 
 
-def create_sample(request, new_sample) -> str:
+def create_sample(request, new_sample: SampleCreate) -> str:
     try:
         repos = get_state_repos(request)
-        new_uuid = repos.sample_repo.create_sample(new_sample)
+
+        sample_db = SampleCreateDatabase(**new_sample.model_dump())
+        sample_db.created_by = request.state.token_info.get('user_uuid')
+
+        new_uuid = repos.sample_repo.create_sample(sample_db)
         if not isinstance(new_uuid, str):
             raise TypeError("The method create_sample did not return a str.")
     except Exception as e:
